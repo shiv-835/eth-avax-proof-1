@@ -18,7 +18,6 @@ contract ErrorHandlingDemonstration{
     function withdrawEther(uint _amount) public payable {
         require(owner == msg.sender,"Only the account holder can withdraw funds");
         require(_amount <= balance,"Insufficient balance.. Can't withdraw");
-
         balance -= _amount;
     } 
 
