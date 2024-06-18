@@ -85,7 +85,7 @@ function forceRevert() public pure {
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/ErrorHandlingDemonstration.git
+   git clone https://github.com/shiv-835/eth-avax-proof-1.git
    ```
 2. Navigate to the project directory:
    ```sh
