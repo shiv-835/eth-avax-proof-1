@@ -1,16 +1,39 @@
-# Demonstration of Error Handling in Solidity
 
-This repository contains a Solidity smart contract designed to demonstrate various error handling mechanisms in Ethereum smart contracts. The contract includes examples of `require`, `assert`, and `revert` statements to enforce conditions and handle errors.
+# TaskManager Smart Contract - Error Handling Demonstration
 
-## Contract Overview
+## Overview
 
-The `ErrorHandlingDemonstration` contract includes the following functionalities:
+The `TaskManager` smart contract is designed to manage a list of tasks on the Ethereum blockchain. It allows users to create and complete tasks while maintaining a log of these actions through events. The contract also includes functionality for the contract owner to withdraw any Ether accumulated in the contract.
 
-- **Owner Management**: The contract owner is set upon deployment.
-- **Ether Deposits**: Users can deposit Ether into the contract.
-- **Ether Withdrawals**: Only the owner can withdraw Ether, subject to balance constraints.
-- **Balance Checking**: Users can check the contract's balance.
-- **Forced Reverts**: A function to demonstrate the use of `revert` for error handling.
+## Features
+
+- Create tasks with a content description.
+- Mark tasks as completed.
+- Retrieve details of individual tasks.
+- Get the total count of tasks created.
+- Contract owner can withdraw all Ether from the contract.
+- Events for task creation and completion.
+- Ether transfers to the contract are accepted.
+
+## Contract Details
+
+### State Variables
+
+- `address public owner`: Stores the address of the contract owner.
+- `uint public taskCount`: Keeps track of the number of tasks created.
+- `mapping(uint => Task) public tasks`: Maps task IDs to Task structs.
+
+### Structs
+
+- `struct Task`: Represents a task with the following fields:
+  - `uint id`: Unique identifier for the task.
+  - `string content`: Description of the task.
+  - `bool completed`: Status of the task (completed or not).
+
+### Events
+
+- `event TaskCreated(uint indexed taskId, string content)`: Emitted when a new task is created.
+- `event TaskCompleted(uint indexed taskId)`: Emitted when a task is marked as completed.
 
 ## Functions
 
@@ -19,93 +42,48 @@ The `ErrorHandlingDemonstration` contract includes the following functionalities
 ```solidity
 constructor() {
     owner = msg.sender;
-    balance = 0;
+    taskCount = 0;
 }
 ```
-
 - Sets the contract deployer as the owner.
-- Initializes the balance to 0.
+- Initializes the task count to zero.
 
-### `depositEther`
+### Modifiers
 
-```solidity
-function depositEther(uint _amount) public payable {
-    require(_amount > 0, "Deposit amount should be greater than zero");
-    balance += _amount;
-}
-```
+- `modifier onlyOwner()`: Ensures that only the contract owner can call certain functions.
 
-- Allows users to deposit Ether into the contract.
-- Ensures the deposit amount is greater than zero.
+### Public Functions
 
-### `withdrawEther`
+- `function createTask(string memory _content) public`: Allows users to create a new task with a non-empty content.
+- `function completeTask(uint _taskId) public`: Allows users to mark a task as completed if it exists and is not already completed.
+- `function getTask(uint _taskId) public view returns (uint, string memory, bool)`: Retrieves the details of a task by its ID.
+- `function getTaskCount() public view returns (uint)`: Returns the total number of tasks created.
+- `function ownerWithdraw() public onlyOwner`: Allows the contract owner to withdraw all Ether from the contract if the balance is greater than zero.
 
-```solidity
-function withdrawEther(uint _amount) public payable {
-    require(owner == msg.sender, "Only the account holder can withdraw funds");
-    require(_amount <= balance, "Insufficient balance.. Can't withdraw");
-    balance -= _amount;
-}
-```
+### Fallback Function
 
-- Allows the owner to withdraw Ether from the contract.
-- Ensures that only the owner can withdraw funds.
-- Checks that the withdrawal amount does not exceed the contract's balance.
+- `receive() external payable`: Accepts Ether transfers to the contract. Reverts the transaction if zero Ether is sent.
 
-### `checkBalance`
+## Usage
 
-```solidity
-function checkBalance() public view returns (uint) {
-    assert(balance >= 0);
-    return balance;
-}
-```
+### Deploying the Contract
 
-- Returns the contract's current balance.
-- Asserts that the balance is non-negative.
+1. Deploy the `TaskManager` contract using a Solidity-compatible environment like Remix, Truffle, or Hardhat.
+2. The contract deployer becomes the owner of the contract.
 
-### `forceRevert`
+### Interacting with the Contract
 
-```solidity
-function forceRevert() public pure {
-    revert("This is a forced revert");
-}
-```
+- **Create a Task**: Call `createTask` with the task content.
+- **Complete a Task**: Call `completeTask` with the task ID.
+- **Get Task Details**: Call `getTask` with the task ID to retrieve its details.
+- **Get Task Count**: Call `getTaskCount` to get the total number of tasks created.
+- **Withdraw Ether**: If you are the contract owner, call `ownerWithdraw` to withdraw all Ether from the contract.
 
-- Demonstrates the use of `revert` to forcefully trigger an error.
+## Security Considerations
 
-## Getting Started
+- Only the contract owner can withdraw Ether from the contract.
+- Ensure that task content is not empty when creating a task.
+- Validate task ID existence before completing a task or retrieving task details.
+- Avoid sending zero Ether to the contract.
 
-### Prerequisites
-
-- Solidity ^0.8.13
-- An Ethereum development environment such as [Remix](https://remix.ethereum.org/), [Truffle](https://www.trufflesuite.com/truffle), or [Hardhat](https://hardhat.org/).
-
-### Deployment
-
-1. Clone the repository:
-   ```sh
-   git clone https://github.com/shiv-835/eth-avax-proof-1.git
-   ```
-2. Navigate to the project directory:
-   ```sh
-   cd ErrorHandlingDemonstration
-   ```
-3. Compile the contract using your preferred development environment.
-
-4. Deploy the contract to your desired Ethereum network.
-
-### Usage
-
-1. Deposit Ether into the contract using `depositEther`.
-2. Withdraw Ether using `withdrawEther` (only the owner can do this).
-3. Check the contract's balance with `checkBalance`.
-4. Trigger a forced revert with `forceRevert`.
-
-## Contributing
-
-Contributions are welcome! Please fork the repository and create a pull request with your changes.
-
-## Contact
-
-For any questions or issues, feel free to mail at workcu835@gmail.com
+---
